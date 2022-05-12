@@ -6,6 +6,7 @@ import {
   Text,
   StyleSheet,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 
 const EventView = (props) => {
@@ -50,18 +51,69 @@ const EventView = (props) => {
 };
 
 export default function EventHolder() {
+  console.log();
   return (
     <SafeAreaView>
       <ScrollView
         style={{ backgroundColor: "#07526b", height: "100%", paddingTop: 50 }}
       >
-        <EventView
-          title="ur mom"
-          origin="home"
-          duration="ur mom"
-          destination="ur moms home"
-          dateandtime="1 hr"
-        />
+        <TouchableOpacity
+          style={{
+            borderWidth: 1,
+            height: 20,
+            borderRadius: 10,
+            width: 40,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#93B7BE",
+            borderColor: "white",
+            left: "85%",
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 14,
+              textAlign: "center",
+              bottom: 2,
+            }}
+          >
+            +
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            borderWidth: 1,
+            height: 20,
+            borderRadius: 10,
+            width: 40,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#93B7BE",
+            borderColor: "white",
+            left: "5%",
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 12,
+              textAlign: "center",
+              bottom: 1,
+            }}
+          >
+            edit
+          </Text>
+        </TouchableOpacity>
+        <View style={{ top: 10 }}>
+          <EventView
+            title="ur mom"
+            origin="home"
+            duration="ur mom"
+            destination="ur moms home"
+            dateandtime="1 hr"
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
