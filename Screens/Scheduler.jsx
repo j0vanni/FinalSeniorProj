@@ -10,6 +10,9 @@ import {
 } from "react-native";
 import storedinfo from "../storedinfo";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useNavigation } from "@react-navigation/native";
+import { getAuth } from "firebase/auth";
+import { collection, doc, setDoc } from "firebase/firestore";
 
 const APIKEY = "AIzaSyAOkb1qfug4ZbKWWsJC7393qBL7N6RKq9w";
 var infojson;
@@ -139,6 +142,8 @@ export default function Scheduler() {
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
 
+  const navigation = useNavigation();
+
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
     setShow(false);
@@ -209,10 +214,19 @@ export default function Scheduler() {
   }
 
   useEffect(() => {
-    if (storedinfo.fromchosen != null && storedinfo.tochosen != null) {
+    let isMounted = true;
+    if (
+      storedinfo.fromchosen != null &&
+      storedinfo.tochosen != null &&
+      isMounted
+    ) {
       //usedirectionsAPI();
       setDisplay(true);
     }
+
+    return () => {
+      isMounted = false;
+    };
   });
 
   return (
@@ -220,22 +234,29 @@ export default function Scheduler() {
       <View>
         <TouchableOpacity
           style={{
-            top: 30,
-            left: 275,
-            width: 100,
-            paddingTop: 10,
-            paddingBottom: 10,
+            borderWidth: 1,
+            height: 20,
+            borderRadius: 10,
+            width: 40,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#93B7BE",
+            borderColor: "white",
+            left: "85%",
+            position: "absolute",
+            top: 40,
           }}
-          onPress={() => console.log("cancel")}
+          onPress={() => navigation.navigate("EventHolder")}
         >
           <Text
             style={{
-              color: "white",
               fontWeight: "bold",
+              fontSize: 11,
               textAlign: "center",
+              bottom: 1,
             }}
           >
-            Cancel
+            cancel
           </Text>
         </TouchableOpacity>
       </View>
@@ -348,6 +369,10 @@ export default function Scheduler() {
             onPress={() => {
               usedirectionsAPI();
               storedinfo.event_name = eventTitle;
+
+              const auth = getAuth();
+
+              navigation.navigate("EventHolder");
             }}
           />
         </View>
