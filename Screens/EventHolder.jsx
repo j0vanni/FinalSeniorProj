@@ -19,6 +19,7 @@ import {
   getDocs,
   getFirestore,
 } from "firebase/firestore";
+import storedinfo from "../storedinfo";
 
 const EventView = (props) => {
   return (
@@ -61,20 +62,39 @@ const EventView = (props) => {
   );
 };
 
-async function loadDB() {
-  const auth = getAuth();
-  const db = getFirestore();
+function usedirectionsAPI(placeidfrom, placeidto, arriveordepart) {
+  var iurl =
+    "https://maps.googleapis.com/maps/api/directions/json?origin=place_id:" +
+    placeidfrom +
+    "&destination=place_id:" +
+    placeidto +
+    "&" +
+    arriveordepart +
+    "=" +
+    Math.floor(storedinfo.time / 1000) +
+    "&mode=transit&key=" +
+    APIKEY;
 
-  const queryList = await getDocs(collection(db, auth.currentUser.email));
-  queryList.forEach((doc) => {
-    console.log(doc.id, " => ", doc.data());
+  axios({ method: "get", url: iurl, responseType: "json" }).then((response) => {
+    //console.log(response.data);
+    storedinfo.storedJSON = response.data;
+    setTTime(storedinfo.storedJSON.routes[0].legs[0].duration.text);
   });
+
+  console.log(iurl);
+}
+
+function EventLoader() {
+  var list = storedinfo.storedList["_W"];
+
+  const godPlease = () => {
+    usedirectionsAPI();
+  };
+  return list.map((num, key) => <EventView key={key} title={list[key].name} />);
 }
 
 export default function EventHolder() {
   const navigation = useNavigation();
-
-  loadDB();
 
   return (
     <SafeAreaView>
@@ -107,7 +127,7 @@ export default function EventHolder() {
             +
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{
             borderWidth: 1,
             height: 20,
@@ -130,15 +150,9 @@ export default function EventHolder() {
           >
             edit
           </Text>
-        </TouchableOpacity>
-        <View style={{ top: 10 }}>
-          <EventView
-            title="ur mom"
-            origin="home"
-            duration="ur mom"
-            destination="ur moms home"
-            dateandtime="1 hr"
-          />
+        </TouchableOpacity> */}
+        <View style={{ marginTop: 40 }}>
+          {storedinfo.storedList !== null && EventLoader()}
         </View>
       </ScrollView>
       <TouchableOpacity

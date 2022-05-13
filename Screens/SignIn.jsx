@@ -4,9 +4,17 @@ import { View, Text, TextInput, StyleSheet, Button } from "react-native";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  getAuth,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
+import storedinfo from "../storedinfo";
+import {
+  collection,
+  doc,
+  getFirestore,
+  getDocs,
+  setDoc,
+} from "firebase/firestore";
 
 export default function LoginPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -20,8 +28,6 @@ export default function LoginPage() {
       if (user) {
         const db = getFirestore();
         setDoc(doc(db, "users", user.email), {});
-
-        console.log("ehlo");
 
         navigation.navigate("EventHolder");
       }
@@ -50,6 +56,26 @@ export default function LoginPage() {
         const user = userCredentials.user;
         console.log("Logged in User:", user.email);
         setIsSignedIn(true);
+
+        async function loadDB() {
+          var list = [];
+          var num = 0;
+          const auth = getAuth();
+          const db = getFirestore();
+
+          const queryList = await getDocs(
+            collection(db, auth.currentUser.email)
+          );
+          queryList.forEach((doc) => {
+            list[num] = doc.data();
+            num++;
+          });
+
+          return list;
+        }
+
+        storedinfo.storedList = loadDB();
+        console.log("hi");
       })
       .catch((error) => alert(error.message));
   };

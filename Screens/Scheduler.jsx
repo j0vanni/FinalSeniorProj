@@ -381,6 +381,8 @@ export default function Scheduler() {
             onPress={() => {
               usedirectionsAPI();
               storedinfo.event_name = eventTitle;
+              storedinfo.polyline =
+                storedinfo.storedJSON.routes[0].overview_polyline.points;
 
               const auth = getAuth();
               const db = getFirestore();
@@ -398,7 +400,28 @@ export default function Scheduler() {
                   storedinfo.todata.predictions[storedinfo.tochosen].place_id,
                 date: storedinfo.time.toLocaleDateString("en-US"),
                 time: storedinfo.time.toLocaleTimeString("en-US"),
+                arriveordepart: arriveordepart,
+                polyline: storedinfo.polyline,
               });
+
+              async function loadDB() {
+                var list = [];
+                var num = 0;
+                const auth = getAuth();
+                const db = getFirestore();
+
+                const queryList = await getDocs(
+                  collection(db, auth.currentUser.email)
+                );
+                queryList.forEach((doc) => {
+                  list[num] = doc.data();
+                  num++;
+                });
+
+                return list;
+              }
+
+              storedinfo.storedList = loadDB();
 
               navigation.navigate("EventHolder");
             }}

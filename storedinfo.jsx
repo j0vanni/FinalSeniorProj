@@ -6,4 +6,6 @@ export default {
   tochosen: null,
   time: null,
   storedJSON: null,
+  polyline: "",
+  storedList: null,
 };
