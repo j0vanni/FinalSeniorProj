@@ -20,6 +20,7 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  deleteDoc,
 } from "firebase/firestore";
 import storedinfo from "../storedinfo";
 const APIKEY = "AIzaSyAOkb1qfug4ZbKWWsJC7393qBL7N6RKq9w";
@@ -135,7 +136,10 @@ export default function EventHolder() {
 
     storedinfo.storedList = posts;
 
-    console.log(posts[0].arriveordepart);
+    for (let i = 0; i < posts.length; i++) {
+      if (Date.parse(posts[i].date) - Date.now() < -172800000)
+        await deleteDoc(doc(db, auth.currentUser.email, posts[i].eventname));
+    }
 
     setLoading(false);
     console.log("loaded");
