@@ -222,7 +222,7 @@ export default function Scheduler() {
       storedinfo.tochosen != null &&
       isMounted
     ) {
-      //usedirectionsAPI();
+      usedirectionsAPI();
       setDisplay(true);
     }
 
@@ -304,7 +304,7 @@ export default function Scheduler() {
                     storedinfo.tochosen != null &&
                     !displayTime
                   ) {
-                    usedirectionsAPI();
+                    //usedirectionsAPI();
                     setDisplay(true);
                   }
                 }}
@@ -385,22 +385,19 @@ export default function Scheduler() {
               const auth = getAuth();
               const db = getFirestore();
 
-              const titlenTime =
-                storedinfo.event_name.replace(/ /g, "_") + Math.random(1, 1000);
+              var randNum = "event" + Math.floor(Math.random() * 100000);
 
-              const usersRef = doc(db, "users", auth.currentUser.email);
+              const usersRef = doc(db, auth.currentUser.email, randNum);
 
               setDoc(usersRef, {
-                event: [
-                  storedinfo.event_name,
-
+                name: storedinfo.event_name,
+                from_placeid:
                   storedinfo.fromdata.predictions[storedinfo.fromchosen]
                     .place_id,
-
+                to_placeid:
                   storedinfo.todata.predictions[storedinfo.tochosen].place_id,
-                  storedinfo.time.toLocaleDateString("en-US"),
-                  storedinfo.time.toLocaleTimeString("en-US"),
-                ],
+                date: storedinfo.time.toLocaleDateString("en-US"),
+                time: storedinfo.time.toLocaleTimeString("en-US"),
               });
 
               navigation.navigate("EventHolder");

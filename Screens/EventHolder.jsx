@@ -16,6 +16,7 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
   getFirestore,
 } from "firebase/firestore";
 
@@ -60,9 +61,14 @@ const EventView = (props) => {
   );
 };
 
-function loadDB() {
+async function loadDB() {
   const auth = getAuth();
   const db = getFirestore();
+
+  const queryList = await getDocs(collection(db, auth.currentUser.email));
+  queryList.forEach((doc) => {
+    console.log(doc.id, " => ", doc.data());
+  });
 }
 
 export default function EventHolder() {
