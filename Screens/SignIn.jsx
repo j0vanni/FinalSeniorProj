@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { authentication } from "../firebase/firebase";
-import { View, Text, TextInput, StyleSheet, Button } from "react-native";
+import { View, Text, TextInput, StyleSheet, Button, Image } from "react-native";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -89,16 +89,10 @@ export default function LoginPage() {
           height: "100%",
         }}
       >
-        <Text
-          style={{
-            fontSize: 24,
-            fontWeight: "bold",
-            textAlign: "center",
-            color: "white",
-          }}
-        >
-          Movin
-        </Text>
+        <Image
+          source={require("../logo.png")}
+          style={{ width: 75, height: 75, borderRadius: 10 }}
+        />
         <TextInput
           style={styles.textinput}
           onChangeText={setEmail}
