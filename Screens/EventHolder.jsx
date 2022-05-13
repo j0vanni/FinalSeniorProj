@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   SafeAreaView,
@@ -8,6 +8,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, signOut } from "firebase/auth";
@@ -26,6 +27,13 @@ const APIKEY = "AIzaSyAOkb1qfug4ZbKWWsJC7393qBL7N6RKq9w";
 const EventView = (props) => {
   const navigation = useNavigation();
 
+  var aod = "";
+  if (props.arriveordepart == "arrival_time") {
+    aod = "Arriving at";
+  } else {
+    aod = "Departing at";
+  }
+
   return (
     <TouchableOpacity
       style={{
@@ -40,6 +48,8 @@ const EventView = (props) => {
         navigation.navigate("Map", {
           plotline: props.plotline,
           number: props.num,
+          fromname: props.fromname,
+          toname: props.toname,
         })
       }
     >
@@ -71,7 +81,7 @@ const EventView = (props) => {
         )}
       </Text>
       <Text style={[styles.textColor, { top: 20, left: 40 }]}>
-        Arriving at {props.dateandtime}
+        {aod} {props.dateandtime}
       </Text>
     </TouchableOpacity>
   );
@@ -95,12 +105,60 @@ function activeTime(input) {
   return firstPart + ":" + secondPart + ampm;
 }
 
+const wait = (timeout) => {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
+};
+
 export default function EventHolder() {
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const [posts, setPost] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadPosts = async () => {
+    setLoading(true);
+
+    const auth = getAuth();
+    const db = getFirestore();
+
+    var list = [];
+    var num = 0;
+
+    const queryList = await getDocs(collection(db, auth.currentUser.email));
+
+    queryList.forEach((doc) => {
+      list[num] = doc.data();
+      num++;
+    });
+
+    setPost(list);
+
+    storedinfo.storedList = posts;
+
+    console.log(posts[0].arriveordepart);
+
+    setLoading(false);
+    console.log("loaded");
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(100).then(() => setRefreshing(false));
+    loadPosts();
+  });
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
 
   return (
     <SafeAreaView>
-      <ScrollView style={{ backgroundColor: "#07526b", height: "100%" }}>
+      <ScrollView
+        style={{ backgroundColor: "#07526b", height: "100%" }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <TouchableOpacity
           style={{
             borderWidth: 1,
@@ -112,7 +170,6 @@ export default function EventHolder() {
             backgroundColor: "#93B7BE",
             borderColor: "white",
             left: "85%",
-            position: "absolute",
             top: 20,
           }}
           onPress={() => navigation.navigate("Scheduler")}
@@ -128,49 +185,29 @@ export default function EventHolder() {
             +
           </Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            height: 20,
-            borderRadius: 10,
-            width: 40,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#93B7BE",
-            borderColor: "white",
-            left: "5%",
-          }}
-        >
-          <Text
-            style={{
-              fontWeight: "bold",
-              fontSize: 12,
-              textAlign: "center",
-              bottom: 1,
-            }}
-          >
-            edit
-          </Text>
-        </TouchableOpacity> */}
-        <View style={{ marginTop: 40 }}>
-          {storedinfo.storedList !== null &&
-            storedinfo.storedList["_W"].map((num, key) => (
+        {loading ? (
+          <Text></Text>
+        ) : (
+          <View style={{ marginTop: 30 }}>
+            {posts.map((num, key) => (
               <EventView
                 key={key}
-                title={storedinfo.storedList["_W"][key].name}
-                origin={storedinfo.storedList["_W"][key].from_name}
-                destination={storedinfo.storedList["_W"][key].to_name}
+                title={posts[key].name}
+                origin={posts[key].from_name}
+                destination={posts[key].to_name}
                 dateandtime={
-                  activeTime(storedinfo.storedList["_W"][key].time) +
-                  ", " +
-                  storedinfo.storedList["_W"][key].date
+                  activeTime(posts[key].time) + ", " + posts[key].date
                 }
-                duration={storedinfo.storedList["_W"][key].duration}
-                plotline={storedinfo.storedList["_W"][key].polyline}
+                duration={posts[key].duration}
+                plotline={posts[key].polyline}
+                arriveordepart={posts[key].arriveordepart}
+                fromname={posts[key].from_name}
+                toname={posts[key].to_name}
                 num={key}
               />
             ))}
-        </View>
+          </View>
+        )}
       </ScrollView>
       <TouchableOpacity
         style={{

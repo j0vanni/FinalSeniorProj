@@ -15,7 +15,7 @@ import { decode } from "@googlemaps/polyline-codec";
 import storedinfo from "../storedinfo";
 
 function Map({ route }) {
-  const { plotline, number } = route.params;
+  const { plotline, number, fromname, toname } = route.params;
   const encoded = plotline;
 
   const path = decode(encoded, 5);
@@ -42,10 +42,7 @@ function Map({ route }) {
       <Polyline coordinates={pathMapping} strokeWidth={5} />
       <Marker coordinate={{ latitude: path[0][0], longitude: path[0][1] }}>
         <Callout>
-          <Text>
-            {storedinfo.storedList !== null &&
-              storedinfo.storedList["_W"][number].from_name}
-          </Text>
+          <Text>{fromname}</Text>
         </Callout>
       </Marker>
       <Marker
@@ -55,10 +52,7 @@ function Map({ route }) {
         }}
       >
         <Callout>
-          <Text>
-            {storedinfo.storedList !== null &&
-              storedinfo.storedList["_W"][number].to_name}
-          </Text>
+          <Text>{toname}</Text>
         </Callout>
       </Marker>
     </MapView>
