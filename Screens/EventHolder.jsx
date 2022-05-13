@@ -20,10 +20,13 @@ import {
   getFirestore,
 } from "firebase/firestore";
 import storedinfo from "../storedinfo";
+const APIKEY = "AIzaSyAOkb1qfug4ZbKWWsJC7393qBL7N6RKq9w";
 
 const EventView = (props) => {
+  const navigation = useNavigation();
+
   return (
-    <View
+    <TouchableOpacity
       style={{
         backgroundColor: "#93B7BE",
         width: "90%",
@@ -32,6 +35,12 @@ const EventView = (props) => {
         borderRadius: 10,
         marginBottom: 10,
       }}
+      onPress={() =>
+        navigation.navigate("Map", {
+          plotline: props.plotline,
+          number: props.num,
+        })
+      }
     >
       <Text
         style={[
@@ -47,60 +56,89 @@ const EventView = (props) => {
         {props.title}
       </Text>
       <Text style={[styles.textColor, { top: 5, left: 5 }]}>
-        Origin: {props.origin}
+        Origin:{" "}
+        {String(props.origin).substring(0, String(props.origin).length - 15)}
       </Text>
       <Text style={[styles.textColor, { top: 7, left: 220 }]}>
         {props.duration}
       </Text>
       <Text style={[styles.textColor, { top: 10, left: 5 }]}>
-        Destination: {props.destination}
+        Destination:{" "}
+        {String(props.destination).substring(
+          0,
+          String(props.destination).length - 15
+        )}
       </Text>
       <Text style={[styles.textColor, { top: 20, left: 40 }]}>
         Arriving at {props.dateandtime}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 
-function usedirectionsAPI(placeidfrom, placeidto, arriveordepart) {
-  var iurl =
-    "https://maps.googleapis.com/maps/api/directions/json?origin=place_id:" +
-    placeidfrom +
-    "&destination=place_id:" +
-    placeidto +
-    "&" +
-    arriveordepart +
-    "=" +
-    Math.floor(storedinfo.time / 1000) +
-    "&mode=transit&key=" +
-    APIKEY;
+function activeTime(input) {
+  var ampm = "am";
+  var firstPart = input.substring(0, 2).replace("0", "");
+  var secondPart = input.substring(3, 5);
 
-  axios({ method: "get", url: iurl, responseType: "json" }).then((response) => {
-    //console.log(response.data);
-    storedinfo.storedJSON = response.data;
-    setTTime(storedinfo.storedJSON.routes[0].legs[0].duration.text);
-  });
+  if (firstPart == 12) {
+    ampm = "pm";
+  } else if (firstPart == 0) {
+    firstPart = "12";
+    ampm = "am";
+  } else if (firstPart > 12) {
+    firstPart = firstPart % 12;
+    ampm = "pm";
+  }
 
-  console.log(iurl);
+  return firstPart + ":" + secondPart + ampm;
 }
 
 function EventLoader() {
-  var list = storedinfo.storedList["_W"];
-
-  const godPlease = () => {
-    usedirectionsAPI();
-  };
-  return list.map((num, key) => <EventView key={key} title={list[key].name} />);
+  if (storedinfo.storedList["_W"] != null) {
+    return storedinfo.storedList["_W"].map((num, key) => (
+      <EventView
+        key={key}
+        title={storedinfo.storedList["_W"][key].name}
+        origin={storedinfo.storedList["_W"][key].from_name}
+        destination={storedinfo.storedList["_W"][key].to_name}
+        dateandtime={
+          activeTime(storedinfo.storedList["_W"][key].time) +
+          ", " +
+          storedinfo.storedList["_W"][key].date
+        }
+        duration={storedinfo.storedList["_W"][key].duration}
+        plotline={storedinfo.storedList["_W"][key].polyline}
+        num={key}
+      />
+    ));
+  }
 }
 
 export default function EventHolder() {
   const navigation = useNavigation();
 
+  useEffect(() => {
+    async function loadDB() {
+      var list = [];
+      var num = 0;
+      const auth = getAuth();
+      const db = getFirestore();
+
+      const queryList = await getDocs(collection(db, auth.currentUser.email));
+      queryList.forEach((doc) => {
+        list[num] = doc.data();
+        num++;
+      });
+
+      return list;
+    }
+    storedinfo.storedList = loadDB();
+  });
+
   return (
     <SafeAreaView>
-      <ScrollView
-        style={{ backgroundColor: "#07526b", height: "100%", paddingTop: 50 }}
-      >
+      <ScrollView style={{ backgroundColor: "#07526b", height: "100%" }}>
         <TouchableOpacity
           style={{
             borderWidth: 1,
@@ -113,6 +151,7 @@ export default function EventHolder() {
             borderColor: "white",
             left: "85%",
             position: "absolute",
+            top: 20,
           }}
           onPress={() => navigation.navigate("Scheduler")}
         >

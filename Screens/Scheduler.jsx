@@ -117,7 +117,7 @@ const Searchbar = ({ styles, location, title }) => {
           ontextChange();
           setRUI(text);
           setIF(text);
-          //getplaceInfo(rawuserinput);
+          getplaceInfo(rawuserinput);
         }}
         value={finalinfo}
         placeholder={title}
@@ -224,6 +224,21 @@ export default function Scheduler() {
     ) {
       usedirectionsAPI();
       setDisplay(true);
+      loadDB();
+    }
+    async function loadDB() {
+      var list = [];
+      var num = 0;
+      const auth = getAuth();
+      const db = getFirestore();
+
+      const queryList = await getDocs(collection(db, auth.currentUser.email));
+      queryList.forEach((doc) => {
+        list[num] = doc.data();
+        num++;
+      });
+
+      return list;
     }
 
     return () => {
@@ -392,6 +407,7 @@ export default function Scheduler() {
               const usersRef = doc(db, auth.currentUser.email, randNum);
 
               setDoc(usersRef, {
+                eventname: randNum,
                 name: storedinfo.event_name,
                 from_placeid:
                   storedinfo.fromdata.predictions[storedinfo.fromchosen]
@@ -402,6 +418,15 @@ export default function Scheduler() {
                 time: storedinfo.time.toLocaleTimeString("en-US"),
                 arriveordepart: arriveordepart,
                 polyline: storedinfo.polyline,
+                from_name: String(
+                  storedinfo.storedJSON.routes[0].legs[0].start_address
+                ),
+                to_name: String(
+                  storedinfo.storedJSON.routes[0].legs[0].end_address
+                ),
+                duration: String(
+                  storedinfo.storedJSON.routes[0].legs[0].duration.text
+                ),
               });
 
               async function loadDB() {
