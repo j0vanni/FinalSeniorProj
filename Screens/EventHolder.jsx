@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useReducer } from "react";
 import {
   View,
   SafeAreaView,
@@ -8,6 +8,9 @@ import {
   StatusBar,
   TouchableOpacity,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { getAuth, signOut } from "firebase/auth";
+import { collection, doc, setDoc } from "firebase/firestore";
 
 const EventView = (props) => {
   return (
@@ -51,7 +54,8 @@ const EventView = (props) => {
 };
 
 export default function EventHolder() {
-  console.log();
+  const navigation = useNavigation();
+
   return (
     <SafeAreaView>
       <ScrollView
@@ -68,7 +72,9 @@ export default function EventHolder() {
             backgroundColor: "#93B7BE",
             borderColor: "white",
             left: "85%",
+            position: "absolute",
           }}
+          onPress={() => navigation.navigate("Scheduler")}
         >
           <Text
             style={{
@@ -115,6 +121,44 @@ export default function EventHolder() {
           />
         </View>
       </ScrollView>
+      <TouchableOpacity
+        style={{
+          borderWidth: 1,
+          height: 20,
+          borderRadius: 10,
+          width: 60,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#93B7BE",
+          borderColor: "white",
+          left: "5%",
+          position: "absolute",
+          top: "95%",
+        }}
+        onPress={() => {
+          const auth = getAuth();
+          console.log("signed out:", auth.currentUser.email);
+
+          signOut(auth)
+            .then(() => {
+              navigation.navigate("SignIn");
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }}
+      >
+        <Text
+          style={{
+            fontWeight: "bold",
+            fontSize: 12,
+            textAlign: "center",
+            bottom: 1,
+          }}
+        >
+          signout
+        </Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
