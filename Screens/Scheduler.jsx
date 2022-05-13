@@ -12,7 +12,7 @@ import storedinfo from "../storedinfo";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
 import { getAuth } from "firebase/auth";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, getFirestore, setDoc } from "firebase/firestore";
 
 const APIKEY = "AIzaSyAOkb1qfug4ZbKWWsJC7393qBL7N6RKq9w";
 var infojson;
@@ -187,11 +187,13 @@ export default function Scheduler() {
 
     axios({ method: "get", url: iurl, responseType: "json" }).then(
       (response) => {
-        console.log(response.data);
+        //console.log(response.data);
         storedinfo.storedJSON = response.data;
         setTTime(storedinfo.storedJSON.routes[0].legs[0].duration.text);
       }
     );
+
+    console.log(iurl);
   }
 
   function activeTime(input) {
@@ -353,10 +355,20 @@ export default function Scheduler() {
           </View>
           {displayTime && storedinfo.storedJSON != null && (
             <View>
-              <Text style={[styles.text, { top: 50, left: "0%" }]}>
+              <Text
+                style={[
+                  styles.text,
+                  { top: 50, left: "0%", textAlign: "center" },
+                ]}
+              >
                 Travel time: {travelingTime}
               </Text>
-              <Text style={[styles.text, { top: 60, left: 18 }]}>
+              <Text
+                style={[
+                  styles.text,
+                  { top: 60, left: "0%", textAlign: "center" },
+                ]}
+              >
                 at {storedinfo.time.toLocaleDateString()},{" "}
                 {activeTime(storedinfo.time.toLocaleTimeString())}
               </Text>
@@ -371,6 +383,25 @@ export default function Scheduler() {
               storedinfo.event_name = eventTitle;
 
               const auth = getAuth();
+              const db = getFirestore();
+
+              const titlenTime =
+                storedinfo.event_name.replace(/ /g, "_") + Math.random(1, 1000);
+
+              const usersRef = doc(db, "users", auth.currentUser.email);
+
+              setDoc(usersRef, {
+                event: [
+                  storedinfo.event_name,
+
+                  storedinfo.fromdata.predictions[storedinfo.fromchosen]
+                    .place_id,
+
+                  storedinfo.todata.predictions[storedinfo.tochosen].place_id,
+                  storedinfo.time.toLocaleDateString("en-US"),
+                  storedinfo.time.toLocaleTimeString("en-US"),
+                ],
+              });
 
               navigation.navigate("EventHolder");
             }}

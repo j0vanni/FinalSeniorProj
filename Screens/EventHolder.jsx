@@ -10,7 +10,14 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, signOut } from "firebase/auth";
-import { collection, doc, setDoc } from "firebase/firestore";
+import {
+  query,
+  where,
+  collection,
+  doc,
+  getDoc,
+  getFirestore,
+} from "firebase/firestore";
 
 const EventView = (props) => {
   return (
@@ -53,8 +60,15 @@ const EventView = (props) => {
   );
 };
 
+function loadDB() {
+  const auth = getAuth();
+  const db = getFirestore();
+}
+
 export default function EventHolder() {
   const navigation = useNavigation();
+
+  loadDB();
 
   return (
     <SafeAreaView>

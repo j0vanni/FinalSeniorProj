@@ -6,6 +6,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
 
 export default function LoginPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -17,6 +18,11 @@ export default function LoginPage() {
   useEffect(() => {
     const unsubscribe = authentication.onAuthStateChanged((user) => {
       if (user) {
+        const db = getFirestore();
+        setDoc(doc(db, "users", user.email), {});
+
+        console.log("ehlo");
+
         navigation.navigate("EventHolder");
       }
     });
