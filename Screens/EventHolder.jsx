@@ -7,6 +7,7 @@ import {
   StyleSheet,
   StatusBar,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, signOut } from "firebase/auth";
@@ -94,47 +95,8 @@ function activeTime(input) {
   return firstPart + ":" + secondPart + ampm;
 }
 
-function EventLoader() {
-  if (storedinfo.storedList["_W"] != null) {
-    return storedinfo.storedList["_W"].map((num, key) => (
-      <EventView
-        key={key}
-        title={storedinfo.storedList["_W"][key].name}
-        origin={storedinfo.storedList["_W"][key].from_name}
-        destination={storedinfo.storedList["_W"][key].to_name}
-        dateandtime={
-          activeTime(storedinfo.storedList["_W"][key].time) +
-          ", " +
-          storedinfo.storedList["_W"][key].date
-        }
-        duration={storedinfo.storedList["_W"][key].duration}
-        plotline={storedinfo.storedList["_W"][key].polyline}
-        num={key}
-      />
-    ));
-  }
-}
-
 export default function EventHolder() {
   const navigation = useNavigation();
-
-  useEffect(() => {
-    async function loadDB() {
-      var list = [];
-      var num = 0;
-      const auth = getAuth();
-      const db = getFirestore();
-
-      const queryList = await getDocs(collection(db, auth.currentUser.email));
-      queryList.forEach((doc) => {
-        list[num] = doc.data();
-        num++;
-      });
-
-      return list;
-    }
-    storedinfo.storedList = loadDB();
-  });
 
   return (
     <SafeAreaView>
@@ -191,7 +153,23 @@ export default function EventHolder() {
           </Text>
         </TouchableOpacity> */}
         <View style={{ marginTop: 40 }}>
-          {storedinfo.storedList !== null && EventLoader()}
+          {storedinfo.storedList !== null &&
+            storedinfo.storedList["_W"].map((num, key) => (
+              <EventView
+                key={key}
+                title={storedinfo.storedList["_W"][key].name}
+                origin={storedinfo.storedList["_W"][key].from_name}
+                destination={storedinfo.storedList["_W"][key].to_name}
+                dateandtime={
+                  activeTime(storedinfo.storedList["_W"][key].time) +
+                  ", " +
+                  storedinfo.storedList["_W"][key].date
+                }
+                duration={storedinfo.storedList["_W"][key].duration}
+                plotline={storedinfo.storedList["_W"][key].polyline}
+                num={key}
+              />
+            ))}
         </View>
       </ScrollView>
       <TouchableOpacity

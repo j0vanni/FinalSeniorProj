@@ -17,6 +17,21 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
+async function loadDB() {
+  var list = [];
+  var num = 0;
+  const auth = getAuth();
+  const db = getFirestore();
+
+  const queryList = await getDocs(collection(db, auth.currentUser.email));
+  queryList.forEach((doc) => {
+    list[num] = doc.data();
+    num++;
+  });
+
+  return list;
+}
+
 export default function LoginPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [email, setEmail] = useState("");
@@ -33,22 +48,6 @@ export default function LoginPage() {
         navigation.navigate("EventHolder");
       }
     });
-
-    async function loadDB() {
-      var list = [];
-      var num = 0;
-      const auth = getAuth();
-      const db = getFirestore();
-
-      const queryList = await getDocs(collection(db, auth.currentUser.email));
-      queryList.forEach((doc) => {
-        list[num] = doc.data();
-        num++;
-      });
-
-      return list;
-    }
-    storedinfo.storedList = loadDB();
 
     return unsubscribe;
   }, []);
@@ -68,71 +67,17 @@ export default function LoginPage() {
   };
 
   const handleSignIn = () => {
-    async function loadDB() {
-      var list = [];
-      var num = 0;
-      const auth = getAuth();
-      const db = getFirestore();
-
-      const queryList = await getDocs(collection(db, auth.currentUser.email));
-      queryList.forEach((doc) => {
-        list[num] = doc.data();
-        num++;
-      });
-
-      return list;
-    }
-    storedinfo.storedList = loadDB();
     signInWithEmailAndPassword(authentication, email, password)
       .then((userCredentials) => {
         storedinfo.storedList = loadDB();
 
         const user = userCredentials.user;
+
         console.log("Logged in User:", user.email);
         setIsSignedIn(true);
-
-        async function loadDB() {
-          var list = [];
-          var num = 0;
-          const auth = getAuth();
-          const db = getFirestore();
-
-          const queryList = await getDocs(
-            collection(db, auth.currentUser.email)
-          );
-          queryList.forEach((doc) => {
-            list[num] = doc.data();
-            num++;
-          });
-
-          return list;
-        }
-        storedinfo.storedList = loadDB();
       })
       .catch((error) => alert(error.message));
   };
-
-  // if (storedinfo.storedList !== null) {
-  //   const db = getFirestore();
-  //   const auth = getAuth();
-
-  //   for (let i = 0; i < storedinfo.storedList["_W"]; i++) {
-  //     if (
-  //       new Date().getTime() -
-  //         Date.parse(storedinfo.storedList["_W"][i].date) <=
-  //       172800000
-  //     ) {
-  //       console.log("deleting");
-  //       deleteDoc(
-  //         doc(
-  //           db,
-  //           auth.currentUser.email,
-  //           storedinfo.storedList["_W"][i].eventname
-  //         )
-  //       );
-  //     }
-  //   }
-  // }
 
   return (
     <View>

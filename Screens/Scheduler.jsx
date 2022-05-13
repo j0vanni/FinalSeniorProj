@@ -224,21 +224,6 @@ export default function Scheduler() {
     ) {
       usedirectionsAPI();
       setDisplay(true);
-      loadDB();
-    }
-    async function loadDB() {
-      var list = [];
-      var num = 0;
-      const auth = getAuth();
-      const db = getFirestore();
-
-      const queryList = await getDocs(collection(db, auth.currentUser.email));
-      queryList.forEach((doc) => {
-        list[num] = doc.data();
-        num++;
-      });
-
-      return list;
     }
 
     return () => {
@@ -429,7 +414,7 @@ export default function Scheduler() {
                 ),
               });
 
-              async function loadDB() {
+              storedinfo.storedList = async function loadDB() {
                 var list = [];
                 var num = 0;
                 const auth = getAuth();
@@ -444,9 +429,7 @@ export default function Scheduler() {
                 });
 
                 return list;
-              }
-
-              storedinfo.storedList = loadDB();
+              };
 
               navigation.navigate("EventHolder");
             }}
