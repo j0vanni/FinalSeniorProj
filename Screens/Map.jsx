@@ -4,6 +4,7 @@ import MapView, { PROVIDER_GOOGLE, Marker, Callout, Polygon, Polyline, Circle } 
 //import Geolocation from '@react-native-community/geolocation';
 //import { request, PERMISSIONS } from 'react-native-permissions';
 import { Component } from 'react';
+import { decode, encode } from "@googlemaps/polyline-codec";
 
 export default class Map extends Component {
 
@@ -47,6 +48,11 @@ export default class Map extends Component {
   //     this.locateCurrentPosition();
   //   }
   // }
+  
+
+  getpolylines = () => {
+      this.path
+  }
 
   // locateCurrentPosition = () => {
   //   Geolocation.getCurrentPosition(
@@ -56,7 +62,17 @@ export default class Map extends Component {
   //   )
   // }
 
+  
+
+
 render() {
+
+    const encoded ="qzswFzjxaMj@r@T|@tAdHTf@TfAVnAj@jC|@hEbBnIbA~ELt@Bn@Z~AfAnFvAxG^lBBAr@StAc@dBc@~A@n@Ql@c@NMV~BW~@]xAw@xDmEvTg@jBm@~As@tAy@jAA~@eAt@kAj@}Q~H}@f@w@h@m@n@eGzIa@v@aAlBm@nAu@bB}DdK[bAub@trAaSfn@cAxCmEnL{KlZ}AfEMZ[x@aGtO[pAOjAEhAHdARA^z@p@v@xEpDjDhCTPbR|MX\V\d@dANf@Ff@PrAThDH|NJpRJjBRfBZ~Ad@zAn@rAt@lA~@jAGtG^j@Xr@Tt@|D~OH~@?~@Ez@Mv@Yr@@n@i@l@wElEQLe@Ti@Hm@?uDEi@@e@Jc@Na@V_@[@k@rAqFlPea@dkAya@pqAGTARCRJjCFdCIf@_J~XGf@Eb@D@F^N\RZ\V|HfFwCmAMIa@_@iApDgAfDeAfDMd@i@[k@@YSe@YUQCFMP[PWFW?YGYOSUGME?Y?]?cAAsA@";
+  //console.log(decode(encoded, 5));
+
+    const path = decode(encoded, 5)
+    console.log(path)
+
   return (
       <MapView provider={PROVIDER_GOOGLE} 
       showsUserLocation = {true}
@@ -75,11 +91,14 @@ render() {
         fillColor={'rgba(200, 300, 200, 0.5)'}>
 
         </Circle>
+        {/* coordinates={[
+            
+			{ latitude: 37.8025259, longitude: -122.4351431 }, */}
+          <Polyline 
+          
+          coordinates={[{latitude: path[0][0], longitude:path[0][1]}]}>
 
-          {/* <Polyline 
-          coordinates={polyline.decode(decodeURI)}>
-
-          </Polyline> */}
+          </Polyline>
         <Marker
         coordinate={{latitude:40.769699 , longitude:-73.982567}}
         title = {'NYIT'}>
