@@ -8,8 +8,6 @@ import MapView, {
   Circle,
   Geojson,
 } from "react-native-maps";
-//import Geolocation from '@react-native-community/geolocation';
-//import { request, PERMISSIONS } from 'react-native-permissions';
 import { React, Component } from "react";
 import { decode } from "@googlemaps/polyline-codec";
 import storedinfo from "../storedinfo";
